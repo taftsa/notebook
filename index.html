@@ -20,15 +20,24 @@
 			<div id="searchBox">
 				<select class="search" id="searchCategory">
 				</select>
-				<input type="text" class="search"  id="searchQuery" placeholder="query" />
+				<input type="text" class="search"  id="searchQuery" placeholder="main query" />
+				<select class="search" id="secondarySearchCategory">
+				</select>
+				<input type="text" class="search"  id="secondarySearchQuery" placeholder="2nd query" />
 				<button id="search">Search</button>
 				<button id="clear">Clear</button>
 			</div>
 			<div class="btnBox">
-				<div class="topBtn" id="openAll">+</div>
-				<div class="topBtn" id="closeAll">-</div>
+				<div class="topBtn" id="openAll">&#9903;</div>
+				<div class="topBtn" id="closeAll">&#9900;</div>
 			</div>
+			<div class="btnBox">
+				<div class="topBtn" id="lockAll">&#9939;</div>
+				<div class="topBtn" id="unlockAll">&#9919;</div>
+			</div>
+			<button id="undefinedTerms">Undefined Terms</button>
 		</div>
+		
 		<div id="output"></div>
 	</body>
 <html>

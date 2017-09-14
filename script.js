@@ -31,12 +31,11 @@ function writeToLog(text, autoShift) {
 function showSource(source, number) {
 	if($("#" + number).length == 0) {
 		$('body').append('<div class="source" id="' + number + '"></div>');
-	
-		$('#' + number).draggable();
 		
 		$('#' + number).append('<div class="identifier">' + source['Identifier'] + '</div>');
-		$('#' + number).append('<div class="close btn">x</div>');
-		$('#' + number).append('<div class="expand btn">+</div>');
+		$('#' + number).append('<div class="close btn">&#9938;</div>');
+		$('#' + number).append('<div class="lock btn">&#9939;</div>');
+		$('#' + number).append('<div class="expand btn">&#9903;</div>');
 		$('#' + number).append('<div class="info btn">&#9883;</div>');
 		
 		$('#' + number).append('<div class="class">' + source['Class'] + '</div>');
@@ -63,9 +62,9 @@ function showSource(source, number) {
 			};	
 			
 		$('#' + number).append('<div class="terms"></div>');	
-			var terms = source['Terms'].split('; ');	
-			for (var i = 0; i < terms.length; i++) {
-				$('#' + number + ' .terms').append('<div class="term">' + terms[i] + '</div>');
+			var theseTerms = source['Terms'].split('; ');	
+			for (var i = 0; i < theseTerms.length; i++) {
+				$('#' + number + ' .terms').append('<div class="term">' + theseTerms[i] + '</div>');
 			}
 
 		$('#' + number).append('<div class="people"></div>');	
@@ -98,14 +97,21 @@ $(document).ready(function(){
 			//Add Search Categories
 			for (var key in notebook[0]) {
 				if (key != 'Timestamp') {
-					$('#searchCategory').append('<option value="' + key + '">' + key + '</option>');
+					$('#searchCategory, #secondarySearchCategory').append('<option value="' + key + '">' + key + '</option>');
 				};
 			};
 			
 			
 			for (var g = 0; g < notebook.length; g++) {
-				var pages = notebook[g]['Pages'].split('-');
-				notebook[g]['Page Count'] = (pages[1] / 1) - (pages[0] / 1) + 1;
+				var pageSets = notebook[g]['Pages'].split('; ');
+				var pageCount = 0;
+				
+				for (var ps = 0; ps < pageSets.length; ps++) {
+					var pages = pageSets[ps].split('-');
+					pageCount += ((pages[1] / 1) - (pages[0] / 1) + 1);
+				};						
+								
+				notebook[g]['Page Count'] = pageCount;
 				
 				notebook[g]['Summary Length'] = notebook[g]['Summary'].length;
 				notebook[g]['Information Density'] = notebook[g]['Summary Length'] / notebook[g]['Page Count'];
@@ -120,8 +126,11 @@ $(document).ready(function(){
 		callback: function (data, tabletop) {
 			var sheets = tabletop.foundSheetNames;
 			
-			for (var s = 0; s < sheets.length; s++) {
-				terms.push(tabletop.sheets(sheets[s]).all());
+			for (var as = 0; as < sheets.length; as++) {
+				var sheetData = tabletop.sheets(sheets[as]).all()
+				for (var ss = 0; ss < sheetData.length; ss++) {
+					terms.push(sheetData[ss]);
+				};				
 			};
 		},
 	});
@@ -130,11 +139,14 @@ $(document).ready(function(){
 //Search
 $(document).on('click', '#search', function() {
 	if (!shifted) {
-		$('.source').remove();
+		$('.source').not('.locked').remove();
 	};	
 	
 	var searchCategory = $('#searchCategory').val();
 	var searchQuery = $('#searchQuery').val();
+	
+	var secondarySearchCategory = $('#secondarySearchCategory').val();
+	var secondarySearchQuery = $('#secondarySearchQuery').val();
 	
 	if (searchQuery == '') {
 		for (var a = 0; a < notebook.length; a++) {
@@ -146,9 +158,9 @@ $(document).on('click', '#search', function() {
 		$('.people').hide();
 	} else {
 		for (var a = 0; a < notebook.length; a++) {
-			if (notebook[a][searchCategory].toUpperCase().search(searchQuery.toUpperCase()) >= 0) {
+			if (notebook[a][searchCategory].toUpperCase().search(searchQuery.toUpperCase()) >= 0 && (notebook[a][secondarySearchCategory].toUpperCase().search(secondarySearchQuery.toUpperCase()) >= 0 || secondarySearchQuery == '')) {
 				showSource(notebook[a], a);
-			}
+			};
 		};
 		
 		$('.outline').hide();
@@ -165,7 +177,7 @@ $(document).on('keyup', '#searchQuery', function(event){
 
 
 $(document).on('click', '#clear', function() {
-	$('.source').remove();
+	$('.source').not('.locked').remove();
 	$('#output').empty();
 	$('#searchQuery').val('');
 });
@@ -180,12 +192,10 @@ $(document).on('click', '.term', function() {
 	var term = this.innerHTML.toUpperCase();
 	var termFound = false;
 
-	for (var c = 0; c < terms.length; c++) {
-		for (var t = 0; t < terms[c].length; t++) {
-			if (terms[c][t]['Term'].toUpperCase() == term) {
-				writeToLog(terms[c][t]['Meaning']);
-				termFound = true;
-			};
+	for (var t = 0; t < terms.length; t++) {
+		if (terms[t]['Term'].toUpperCase() == term) {
+			writeToLog(terms[t]['Meaning']);
+			termFound = true;
 		};
 	};
 
@@ -200,22 +210,8 @@ $(document).on('click', '.person', function() {
 
 
 //UI Controls
-$(document).on('click drag', '.source', function() {
-	var highestZ = 1;
-	
-	$('.source').each(function() {
-		var currentZ = $(this).css('z-index') / 1;
-		
-		if (currentZ > highestZ) {
-			highestZ = currentZ;
-		};
-	});
-	
-	$(this).css('z-index', highestZ + 1);
-});
-
 $(document).on('click', '.close', function() {
-	$(this).parent().remove();
+	$(this).parent().not('.locked').remove();
 });
 
 $(document).on('click', '.expand', function() {
@@ -224,9 +220,9 @@ $(document).on('click', '.expand', function() {
 	$(this).siblings('.people').toggle();	
 	
 	if ($(this).siblings('.outline').css('display') == 'none') {
-		$(this).html('+');
+		$(this).html('&#9903;');
 	} else {
-		$(this).html('-')
+		$(this).html('&#9900;')
 	};
 });
 
@@ -235,7 +231,7 @@ $(document).on('click', '#openAll', function(){
 	$('.terms').show();
 	$('.people').show();
 	
-	$('.expand').html('-');
+	$('.expand').html('&#9900;');
 });
 
 $(document).on('click', '#closeAll', function(){
@@ -243,7 +239,7 @@ $(document).on('click', '#closeAll', function(){
 	$('.terms').hide();
 	$('.people').hide();
 	
-	$('.expand').html('+');
+	$('.expand').html('&#9903;');
 });
 
 $(document).on('click', '.info', function() {
@@ -262,4 +258,60 @@ $(document).on('click', '.info', function() {
 		writeToLog('Information Density: ' + notebook[id]['Information Density'], true);
 		writeToLog('Difficulty: ' + notebook[id]['Difficulty'], true);
 	};
+});
+
+$(document).on('click', '.lock', function() {
+	$(this).parent().addClass('locked');
+	$(this).removeClass('lock');
+	$(this).addClass('unlock');
+	$(this).html('&#9919;');
+});
+
+$(document).on('click', '.unlock', function() {
+	$(this).parent().removeClass('locked');
+	$(this).removeClass('unlock');
+	$(this).addClass('lock');
+	$(this).html('&#9939;');
+});
+
+$(document).on('click', '#lockAll', function() {
+	$('.lock').addClass('unlock');
+	$('.lock').removeClass('lock');
+	$('.unlock').html('&#9919;');
+	$('.source').addClass('locked');
+});
+
+$(document).on('click', '#unlockAll', function() {
+	$('.unlock').addClass('lock');
+	$('.unlock').removeClass('unlock');
+	$('.lock').html('&#9939;');
+	$('.source').removeClass('locked');
+});
+
+$(document).on('click', '#undefinedTerms', function() {
+	var undefinedTerms = [];
+	
+	//Loop through sources
+	for (var ts = 0; ts < notebook.length; ts++) {
+		var thisSourceTerms = notebook[ts]['Terms'].split('; ');
+		
+		//Loop through terms in that source
+		for (var tst = 0; tst < thisSourceTerms.length; tst++) {
+			var defined = false;
+			
+			for (var cfd = 0; cfd < terms.length; cfd++) {
+				if (thisSourceTerms[tst].toUpperCase() == terms[cfd]['Term'].toUpperCase()) {
+					defined = true;
+				};
+			};
+			
+			if (!defined && thisSourceTerms[tst] != '') {
+				undefinedTerms.push(thisSourceTerms[tst]);
+			};
+		};
+	};
+	
+	for (var ut = 0; ut < undefinedTerms.length; ut++) {
+		writeToLog(undefinedTerms[ut], true);
+	}
 });
