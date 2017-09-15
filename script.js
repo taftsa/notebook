@@ -282,8 +282,11 @@ $(document).on('click', '.unlock', function() {
 });
 
 $(document).on('click', '.link', function() {
-	var id = $(this).parent().attr('id') / 1;	
-	window.open(notebook[id]['Link']);
+	var id = $(this).parent().attr('id') / 1;
+	
+	if (notebook[id]['Link'] != 'n/a') {	
+		window.open(notebook[id]['Link']);
+	};
 });
 
 $(document).on('click', '#lockAll', function() {
