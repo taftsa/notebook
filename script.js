@@ -37,17 +37,18 @@ function showSource(source, number) {
 		$('#' + number).append('<div class="lock btn">&#9939;</div>');
 		$('#' + number).append('<div class="expand btn">&#9903;</div>');
 		$('#' + number).append('<div class="info btn">&#9883;</div>');
+		$('#' + number).append('<div class="link btn">&#9964;</div>');
 		
 		$('#' + number).append('<div class="class">' + source['Class'] + '</div>');
-		$('#' + number).append('<div class="week">' + source['Week'] + '</div>');
 		$('#' + number).append('<div class="title">' + source['Title'] + '</div>');
+		$('#' + number).append('<div class="week">' + source['Week'] + '</div>');		
 		$('#' + number).append('<div class="author">' + source['Author'] + '</div>');
 		$('#' + number).append('<div class="topic">' + source['Topic'] + '</div>');
 
 		$('#' + number).append('<div class="outline"></div>');
-			var outline = source['Outline'].split('; ');
+			var outline = source['Outline'].split(';; ');
 			var commentString = source['Summary'];
-			var comments = commentString.split('; ');
+			var comments = commentString.split(';; ');
 		
 			if (commentString.substring(0,3) == "&&&") {			
 				for (var i = 0; i < outline.length; i++) {
@@ -62,13 +63,13 @@ function showSource(source, number) {
 			};	
 			
 		$('#' + number).append('<div class="terms"></div>');	
-			var theseTerms = source['Terms'].split('; ');	
+			var theseTerms = source['Terms'].split(';; ');	
 			for (var i = 0; i < theseTerms.length; i++) {
 				$('#' + number + ' .terms').append('<div class="term">' + theseTerms[i] + '</div>');
 			}
 
 		$('#' + number).append('<div class="people"></div>');	
-			var people = source['People'].split('; ');	
+			var people = source['People'].split(';; ');	
 			for (var i = 0; i < people.length; i++) {
 				justPerson = people[i].split(' - ');
 				
@@ -103,7 +104,7 @@ $(document).ready(function(){
 			
 			
 			for (var g = 0; g < notebook.length; g++) {
-				var pageSets = notebook[g]['Pages'].split('; ');
+				var pageSets = notebook[g]['Pages'].split(';; ');
 				var pageCount = 0;
 				
 				for (var ps = 0; ps < pageSets.length; ps++) {
@@ -156,6 +157,7 @@ $(document).on('click', '#search', function() {
 		$('.outline').hide();
 		$('.terms').hide();
 		$('.people').hide();
+		$('.topic').hide();
 	} else {
 		for (var a = 0; a < notebook.length; a++) {
 			if (notebook[a][searchCategory].toUpperCase().search(searchQuery.toUpperCase()) >= 0 && (notebook[a][secondarySearchCategory].toUpperCase().search(secondarySearchQuery.toUpperCase()) >= 0 || secondarySearchQuery == '')) {
@@ -166,6 +168,7 @@ $(document).on('click', '#search', function() {
 		$('.outline').hide();
 		$('.terms').hide();
 		$('.people').hide();
+		$('.topic').hide();
 	};
 });
 
@@ -180,6 +183,7 @@ $(document).on('click', '#clear', function() {
 	$('.source').not('.locked').remove();
 	$('#output').empty();
 	$('#searchQuery').val('');
+	$('#secondarySearchQuery').val('');
 });
 
 
@@ -217,7 +221,8 @@ $(document).on('click', '.close', function() {
 $(document).on('click', '.expand', function() {
 	$(this).siblings('.outline').toggle();
 	$(this).siblings('.terms').toggle();	
-	$(this).siblings('.people').toggle();	
+	$(this).siblings('.people').toggle();
+	$(this).siblings('.topic').toggle();
 	
 	if ($(this).siblings('.outline').css('display') == 'none') {
 		$(this).html('&#9903;');
@@ -230,6 +235,7 @@ $(document).on('click', '#openAll', function(){
 	$('.outline').show();
 	$('.terms').show();
 	$('.people').show();
+	$('.topic').show();
 	
 	$('.expand').html('&#9900;');
 });
@@ -238,6 +244,7 @@ $(document).on('click', '#closeAll', function(){
 	$('.outline').hide();
 	$('.terms').hide();
 	$('.people').hide();
+	$('.topic').hide();
 	
 	$('.expand').html('&#9903;');
 });
@@ -274,6 +281,11 @@ $(document).on('click', '.unlock', function() {
 	$(this).html('&#9939;');
 });
 
+$(document).on('click', '.link', function() {
+	var id = $(this).parent().attr('id') / 1;	
+	window.open(notebook[id]['Link']);
+});
+
 $(document).on('click', '#lockAll', function() {
 	$('.lock').addClass('unlock');
 	$('.lock').removeClass('lock');
@@ -288,12 +300,18 @@ $(document).on('click', '#unlockAll', function() {
 	$('.source').removeClass('locked');
 });
 
+$(document).on('click', '#d2l', function() {
+	window.open('https://learn.colorado.edu/d2l/home/223822');
+});
+
 $(document).on('click', '#undefinedTerms', function() {
+	$('#output').empty();
+	
 	var undefinedTerms = [];
 	
 	//Loop through sources
 	for (var ts = 0; ts < notebook.length; ts++) {
-		var thisSourceTerms = notebook[ts]['Terms'].split('; ');
+		var thisSourceTerms = notebook[ts]['Terms'].split(';; ');
 		
 		//Loop through terms in that source
 		for (var tst = 0; tst < thisSourceTerms.length; tst++) {
