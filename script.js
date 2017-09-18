@@ -3,15 +3,20 @@ function startsWith(string) {
 	if (string[0].match(/[IVX]/)) {
 		return '';
 	};
-  
+	
+	//Arabic Numeral
+	if (string[0].match(/[0-9]/)) {
+		return '&emsp;';
+	};
+	
 	//Lowercase Letters
 	if (string[0].match(/[a-z]/)) {
 		return('&emsp;&emsp;');
 	};
 	
 	//Arabic Numeral
-	if (string[0].match(/[0-9]/)) {
-		return '&emsp;';
+	if (string[0] == '>') {
+		return '&emsp;&emsp;&emsp;';
 	};
 };
 
@@ -97,7 +102,7 @@ $(document).ready(function(){
 			
 			//Add Search Categories
 			for (var key in notebook[0]) {
-				if (key != 'Timestamp') {
+				if (key != 'Timestamp' && key != 'Time' && key != 'Link' && key != 'Pages') {
 					$('#searchCategory, #secondarySearchCategory').append('<option value="' + key + '">' + key + '</option>');
 				};
 			};
@@ -110,14 +115,13 @@ $(document).ready(function(){
 				for (var ps = 0; ps < pageSets.length; ps++) {
 					var pages = pageSets[ps].split('-');
 					pageCount += ((pages[1] / 1) - (pages[0] / 1) + 1);
-				};						
-								
-				notebook[g]['Page Count'] = pageCount;
-				
-				notebook[g]['Summary Length'] = notebook[g]['Summary'].length;
-				notebook[g]['Information Density'] = notebook[g]['Summary Length'] / notebook[g]['Page Count'];
-				
-				notebook[g]['Difficulty'] = notebook[g]['Time'] / (notebook[g]['Page Count'] * 5);
+				};
+	
+				notebook[g]['Page Count'] = pageCount;				
+				notebook[g]['Time Per Page'] = (notebook[g]['Time'] / pageCount).toFixed(1);				
+				notebook[g]['Summary Length'] = notebook[g]['Summary'].split(' ').length;
+				notebook[g]['Information Density'] = (notebook[g]['Summary Length'] / notebook[g]['Page Count']).toFixed(1);				
+				notebook[g]['Difficulty'] = (notebook[g]['Time'] / (notebook[g]['Page Count'] * 5)).toFixed(2);
 			};
 		},
 		simpleSheet: true
@@ -187,27 +191,72 @@ $(document).on('click', '#clear', function() {
 });
 
 
-//Notes
+//Notes - Outline
 $(document).on('click', '.outlinePart', function() {
-	writeToLog($(this).next().html());
+	var outlineNotes = $(this).next().html().split('; ');
+	
+	for (var on = 0; on < outlineNotes.length; on++) {
+		if (on == 0) {
+			writeToLog(outlineNotes[on], false);
+		} else {
+			writeToLog(outlineNotes[on], true);
+		};		
+	};	
 });
-		
+
+function defineTerm(defineWhat) {
+	for (var dt = 0; dt < terms.length; dt++) {
+		if (terms[dt]['Term'].toUpperCase() == defineWhat.toUpperCase()) {			
+			return terms[dt]['Meaning'];
+		};
+	};
+};
+
+function getSourceTerm(getSourceWhat) {
+	for (var gst = 0; gst < terms.length; gst++) {
+		if (terms[gst]['Term'].toUpperCase() == getSourceWhat.toUpperCase()) {			
+			return terms[gst]['Source where term is found (Article, pg)'];
+		};
+	};
+};
+
+//Notes - Term		
 $(document).on('click', '.term', function() {
 	var term = this.innerHTML.toUpperCase();
 	var termFound = false;
 
 	for (var t = 0; t < terms.length; t++) {
 		if (terms[t]['Term'].toUpperCase() == term) {
-			writeToLog(terms[t]['Meaning']);
+			var definitions = terms[t]['Meaning'].split(' | ')[0].split(';; ');
+			var sources = terms[t]['Source where term is found (Article, pg)'].split(';; ');
+			var relatedTerms = [];
+			
+			if (terms[t]['Meaning'].split(' | ').length > 1) {
+				relatedTerms = terms[t]['Meaning'].split(' | ')[1].split('; ');
+			};
+			
+			for (var dt = 0; dt < definitions.length; dt++) {
+				if (dt == 0) {
+					writeToLog(definitions[dt] + ' (' + sources[dt] + ')');
+				} else {
+					writeToLog(definitions[dt] + ' (' + sources[dt] + ')', true);
+				};
+			};
+			
+			for (var rt = 0; rt < relatedTerms.length; rt++) {
+				writeToLog('Related Term - ' + relatedTerms[rt] + ' - ' + defineTerm(relatedTerms[rt]).split(' | ')[0] + ' (' + getSourceTerm(relatedTerms[rt]) + ')', true);
+			};	
+			
 			termFound = true;
 		};
 	};
 
 	if (!termFound) {
-		writeToLog('Term not found.');
+		writeToLog('Error: Term not found.');
 	};
 });
-		
+
+//Notes - People	
 $(document).on('click', '.person', function() {
 	writeToLog($(this).next().html());
 });
@@ -259,10 +308,11 @@ $(document).on('click', '.info', function() {
 		$('#output').empty();
 		writeToLog('Pages: ' + notebook[id]['Pages'], true);
 		writeToLog('Publication Type: ' + notebook[id]['Publication Type'], true);
-		writeToLog('Time: ' + notebook[id]['Time'], true);
+		writeToLog('Time: ' + notebook[id]['Time'] + ' minutes', true);
 		writeToLog('Page Count: ' + notebook[id]['Page Count'], true);
-		writeToLog('Summary Length: ' + notebook[id]['Summary Length'], true);
-		writeToLog('Information Density: ' + notebook[id]['Information Density'], true);
+		writeToLog('Summary Length: ' + notebook[id]['Summary Length'] + ' words', true);
+		writeToLog('Time Per Page: ' + notebook[id]['Time Per Page'] + ' minutes', true);
+		writeToLog('Information Density: ' + notebook[id]['Information Density'] + ' words/page', true);
 		writeToLog('Difficulty: ' + notebook[id]['Difficulty'], true);
 	};
 });
@@ -284,7 +334,7 @@ $(document).on('click', '.unlock', function() {
 $(document).on('click', '.link', function() {
 	var id = $(this).parent().attr('id') / 1;
 	
-	if (notebook[id]['Link'] != 'n/a') {	
+	if (notebook[id]['Link'] != 'n/a') {
 		window.open(notebook[id]['Link']);
 	};
 });
