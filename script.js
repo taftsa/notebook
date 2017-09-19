@@ -26,9 +26,7 @@ var shifted = false;
 $(document).on('keyup keydown', function(e){shifted = e.shiftKey} );
 
 function writeToLog(text, autoShift) {
-	if (!shifted && !autoShift) {
-		$('#output').empty();
-	}
+	if (!shifted && !autoShift) { $('#output').empty(); };
 	$('#output').append('<div class="note">> ' + text + '</div>');
 };
 
@@ -358,7 +356,7 @@ $(document).on('click', '#d2l', function() {
 });
 
 $(document).on('click', '#undefinedTerms', function() {
-	$('#output').empty();
+	if (!shifted) { $('#output').empty(); };
 	
 	var undefinedTerms = [];
 	
@@ -386,3 +384,43 @@ $(document).on('click', '#undefinedTerms', function() {
 		writeToLog(undefinedTerms[ut], true);
 	}
 });
+
+$(document).on('click', '#defineTerm', function() {
+	var defineThis = defineTerm($('#defineThis').val());
+	
+	if (defineThis != undefined) {
+		writeToLog(defineThis);
+	} else {
+		writeToLog('Term not found');
+	};
+});
+
+$(document).on('keyup', '#defineThis', function(event){
+    if(event.keyCode == 13){
+        $('#defineTerm').click();
+    };
+});
+
+$(document).on('click', '#searchTerm', function() {
+	var searchThis = $('#defineThis').val();
+	var defined = false;
+	
+	if (!shifted) { $('#output').empty(); };	
+	
+	for (var st = 0; st < terms.length; st++) {
+		if (terms[st]['Term'].toUpperCase().search(searchThis.toUpperCase()) >= 0) {
+			writeToLog(terms[st]['Term'], true);
+			writeToLog(terms[st]['Meaning'], true);
+			writeToLog('', true);
+			defined = true;
+		};
+	};
+	
+	if (!defined) {
+		writeToLog('Term not found');
+	};
+});
+
+
+
+

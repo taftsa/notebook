@@ -34,9 +34,9 @@ body {
 	font-size: 30px;
 }
 
-#spacer {
+.spacer {
 	display: inline-block;
-	width: 60px;
+	width: 50px;
 }
 
 #searchBox {
@@ -70,6 +70,14 @@ button {
 	margin: 5px;
 	background-color: white;
 	cursor: pointer;
+}
+
+#openAll, #closeAll {
+	background-color: lightpink;
+}
+
+#lockAll, #unlockAll {
+	background-color: palegreen;
 }
 
 .grey {
