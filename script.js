@@ -180,6 +180,12 @@ $(document).on('keyup', '#searchQuery', function(event){
     };
 });
 
+$(document).on('keyup', '#secondarySearchQuery', function(event){
+    if(event.keyCode == 13){
+        $('#search').click();
+    };
+});
+
 
 $(document).on('click', '#clear', function() {
 	$('.source').not('.locked').remove();
@@ -334,6 +340,8 @@ $(document).on('click', '.link', function() {
 	
 	if (notebook[id]['Link'] != 'n/a') {
 		window.open(notebook[id]['Link']);
+	} else {
+		writeToLog('No link available.');
 	};
 });
 
