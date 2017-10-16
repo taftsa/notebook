@@ -15,20 +15,25 @@
 	</head>
 	<body>
 		<div id="topBar">
-			<div id="title">
-				<span class="grey">note</span>book
-			</div>
+			<div id="title"><span class="grey">note</span>book</div>
+			
 			<div class="spacer"></div>
-			<div id="searchBox">
-				<select class="search" id="searchCategory">
-				</select>
-				<input type="text" class="search"  id="searchQuery" placeholder="main query" />
-				<select class="search" id="secondarySearchCategory">
-				</select>
-				<input type="text" class="search"  id="secondarySearchQuery" placeholder="2nd query" />
-				<button id="search">Search</button>
-				<button id="clear">Clear</button>
-			</div>
+			
+			<table id="searchBox">
+				<tr>
+					<td><select class="search" id="searchCategory"></select></td>
+					<td><select class="search" id="secondarySearchCategory"></select></td>
+					<td><button id="search">Search</button></td>
+				</tr>
+				<tr>
+					<td><input type="text" class="search"  id="searchQuery" placeholder="main query" /></td>
+					<td><input type="text" class="search"  id="secondarySearchQuery" placeholder="2nd query" /></td>
+					<td><button id="clear">Clear</button></td>
+				</tr>
+			</table>
+			
+			<div class="spacer"></div>
+			
 			<div class="btnBox">
 				<div class="topBtn" id="openAll">&#9903;</div>
 				<div class="topBtn" id="closeAll">&#9900;</div>
@@ -37,12 +42,32 @@
 				<div class="topBtn" id="lockAll">&#9939;</div>
 				<div class="topBtn" id="unlockAll">&#9919;</div>
 			</div>
-			<button id="d2l">D2L - Qual</button>
+			
 			<div class="spacer"></div>
-			<input type="text" id="defineThis" placeholder="term" />
-			<button id="defineTerm">Exact</button>
-			<button id="searchTerm">Search</button>
-			<button id="undefinedTerms">Undefined Terms</button>
+			
+			<table id="infoBox">
+				<tr>
+					<td><button class="midBtn" id="d2l">D2L - Qual</button></td>
+					<td><button class="midBtn" id="undefinedTerms">Undefined Terms</button></td>
+				</tr>
+				<tr>
+					<td><button class="midBtn" id="stats">Stats</button></td>
+					<td><button class="midBtn" id="topics">Topics</button></td>
+				</tr>
+			</table>
+			
+			<div class="spacer"></div>
+			
+			<table id="infoBox">
+				<tr>
+					<td colspan="2"><input type="text" id="defineThis" placeholder="term" /></td>
+				</tr>
+				<tr>
+					<td><button id="defineTerm">Exact</button></td>
+					<td><button id="searchTerm">Search</button></td>
+					<td></td>
+				</tr>
+			</table>
 		</div>
 		
 		<div id="output"></div>

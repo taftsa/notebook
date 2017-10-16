@@ -40,8 +40,11 @@ function showSource(source, number) {
 		$('#' + number).append('<div class="lock btn">&#9939;</div>');
 		$('#' + number).append('<div class="expand btn">&#9903;</div>');
 		$('#' + number).append('<div class="info btn">&#9883;</div>');
-		$('#' + number).append('<div class="link btn">&#9964;</div>');
 		
+		if (source['Link'] != 'n/a') {
+			$('#' + number).append('<div class="link btn">&#9964;</div>');
+		};		
+
 		$('#' + number).append('<div class="class">' + source['Class'] + '</div>');
 		$('#' + number).append('<div class="title">' + source['Title'] + '</div>');
 		$('#' + number).append('<div class="week">' + source['Week'] + '</div>');		
@@ -112,7 +115,12 @@ $(document).ready(function(){
 				
 				for (var ps = 0; ps < pageSets.length; ps++) {
 					var pages = pageSets[ps].split('-');
-					pageCount += ((pages[1] / 1) - (pages[0] / 1) + 1);
+					
+					if (pages.length > 1) {
+						pageCount += ((pages[1] / 1) - (pages[0] / 1) + 1);
+					} else {
+						pageCount += 1
+					};
 				};
 	
 				notebook[g]['Page Count'] = pageCount;				
@@ -160,6 +168,8 @@ $(document).on('click', '#search', function() {
 		$('.terms').hide();
 		$('.people').hide();
 		$('.topic').hide();
+		
+		$('.expand').html('&#9903;');
 	} else {
 		for (var a = 0; a < notebook.length; a++) {
 			if (notebook[a][searchCategory].toUpperCase().search(searchQuery.toUpperCase()) >= 0 && (notebook[a][secondarySearchCategory].toUpperCase().search(secondarySearchQuery.toUpperCase()) >= 0 || secondarySearchQuery == '')) {
@@ -429,6 +439,47 @@ $(document).on('click', '#searchTerm', function() {
 	};
 });
 
+$(document).on('click', '#topics', function() {
+	if (!shifted) { $('#output').empty(); };
+	
+	//Loop through sources
+	for (var ts = 0; ts < notebook.length; ts++) {
+		writeToLog(notebook[ts]['Topic'] + ' (' + notebook[ts]['Identifier'] + ')', true);
+	};
+});
 
-
-
+$(document).on('click', '#stats', function() {
+	if (!shifted) { $('#output').empty(); };
+	
+	var totalPages = 0;
+	var totalTime = 0;
+	var totalNotes = 0;
+	
+	//Loop through sources
+	for (var ts = 0; ts < notebook.length; ts++) {
+		if (!isNaN(notebook[ts]['Page Count'])) {
+			totalPages += notebook[ts]['Page Count'];
+		};
+		
+		if (!isNaN(notebook[ts]['Time'])) {
+			totalTime += notebook[ts]['Time'] / 1;
+		};
+		
+		if (!isNaN(notebook[ts]['Summary Length'])) {
+			totalNotes += notebook[ts]['Summary Length'];
+		};
+	};
+	
+	totalNotes = totalNotes / 1500;
+	
+	var totalDays = Math.floor(totalTime / 1440);
+	var totalHours = Math.floor((totalTime - (totalDays * 1440)) / 60);
+	var totalMinutes = totalTime - (totalHours * 60) - (totalDays * 1440);
+	
+	var totalTimePerPage = totalTime / totalPages;
+	
+	writeToLog('Pages Read: ' + totalPages, true);
+	writeToLog('Time Read: ' + totalDays + ' days, ' + totalHours + ' hours, ' + totalMinutes + ' minutes', true);
+	writeToLog('Notes Taken: ' + totalNotes + ' pages', true);
+	writeToLog('Average Time per Page: ' + totalTimePerPage.toFixed(2) + ' minutes', true);
+});
