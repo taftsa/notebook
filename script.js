@@ -63,7 +63,11 @@ function showSource(source, number) {
 				};
 			} else {			
 				for (var i = 0; i < outline.length; i++) {
-					$('#' + number + ' .outline').append('<div class="outlinePart">' + startsWith(outline[i]) + outline[i] + '</div>');
+					if (outline[i].length < 100) {
+						$('#' + number + ' .outline').append('<div class="outlinePart">' + startsWith(outline[i]) + outline[i] + '</div>');
+					} else {
+						$('#' + number + ' .outline').append('<div class="outlinePart">' + startsWith(outline[i]) + outline[i].substring(0,97) + '...' + '</div>');
+					};
 					$('#' + number + ' .outline').append('<div class="comment">' + comments[i] + '</div>');			
 				};
 			};	
