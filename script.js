@@ -445,10 +445,19 @@ $(document).on('click', '#searchTerm', function() {
 
 $(document).on('click', '#topics', function() {
 	if (!shifted) { $('#output').empty(); };
-	
-	//Loop through sources
-	for (var ts = 0; ts < notebook.length; ts++) {
-		writeToLog(notebook[ts]['Topic'] + ' (' + notebook[ts]['Identifier'] + ')', true);
+
+	//Check to see if a search term (course) is entered
+	if ($('#defineThis').val().length > 0) {
+		for (var ts = 0; ts < notebook.length; ts++) {
+			if (notebook[ts]['Class'].toUpperCase() == $('#defineThis').val().toUpperCase()) {
+				writeToLog(notebook[ts]['Topic'] + ' (' + notebook[ts]['Identifier'] + ')', true);
+			};			
+		};
+	} else {
+		//Loop through sources
+		for (var ts = 0; ts < notebook.length; ts++) {
+			writeToLog(notebook[ts]['Topic'] + ' (' + notebook[ts]['Identifier'] + ')', true);
+		};
 	};
 });
 
