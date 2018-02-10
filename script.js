@@ -111,7 +111,9 @@ $(document).ready(function(){
 					$('#searchCategory, #secondarySearchCategory').append('<option value="' + key + '">' + key + '</option>');
 				};
 			};
-			
+
+			$('#searchCategory').val('Class');
+			$('#secondarySearchCategory').val('Week');
 			
 			for (var g = 0; g < notebook.length; g++) {
 				var pageSets = notebook[g]['Pages'].split(';; ');
