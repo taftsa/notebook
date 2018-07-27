@@ -110,8 +110,8 @@ button {
 	background-color: black;
 	color: white;
 	border: 2px solid grey;
-	width: 400px;
-	height: 520px;
+	width: 25%;
+	height: 88%;
 	padding: 8px;
 	overflow: auto;
 }
@@ -135,7 +135,7 @@ body > .source ~ .source {
 	opacity: 0.92;
 	box-shadow: 6px 6px 3px grey;
 	padding: 4px;
-	width: 800px;
+	width: 70%;
 	position: relative;
 	top: 30px;
 	margin-bottom: 36px;
