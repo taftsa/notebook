@@ -240,8 +240,17 @@ function getSourceTerm(getSourceWhat) {
 	};
 };
 
+function getSourceCourse(getSourceWhat) {
+	for (var gsc = 0; gsc < terms.length; gsc++) {
+		if (terms[gsc]['Term'].toUpperCase() == getSourceWhat.toUpperCase()) {			
+			return terms[gsc]['Course'];
+		};
+	};
+};
+
 //Notes - Term		
 $(document).on('click', '.term', function() {
+	$('#output').empty();
 	var term = this.innerHTML.toUpperCase();
 	var termFound = false;
 
@@ -249,22 +258,21 @@ $(document).on('click', '.term', function() {
 		if (terms[t]['Term'].toUpperCase() == term) {
 			var definitions = terms[t]['Meaning'].split(' | ')[0].split(';; ');
 			var sources = terms[t]['Source where term is found (Article, pg)'].split(';; ');
+			var courses = terms[t]['Course'].split(';; ');
 			var relatedTerms = [];
+			var relatedSources = [];
+			var relatedCourses = [];
 			
 			if (terms[t]['Meaning'].split(' | ').length > 1) {
 				relatedTerms = terms[t]['Meaning'].split(' | ')[1].split('; ');
 			};
 			
 			for (var dt = 0; dt < definitions.length; dt++) {
-				if (dt == 0) {
-					writeToLog(definitions[dt] + ' (' + sources[dt] + ')');
-				} else {
-					writeToLog(definitions[dt] + ' (' + sources[dt] + ')', true);
-				};
+				writeToLog(definitions[dt] + ' (' + sources[dt] + ') [' + courses[dt].toUpperCase() + ']', true);
 			};
 			
 			for (var rt = 0; rt < relatedTerms.length; rt++) {
-				writeToLog('Related Term - ' + relatedTerms[rt] + ' - ' + defineTerm(relatedTerms[rt]).split(' | ')[0] + ' (' + getSourceTerm(relatedTerms[rt]) + ')', true);
+				writeToLog('Related Term - ' + relatedTerms[rt] + ' - ' + defineTerm(relatedTerms[rt]).split(' | ')[0] + ' (' + getSourceTerm(relatedTerms[rt]) + ') [' + getSourceCourse(relatedTerms[rt]).toUpperCase() + ']', true);
 			};	
 			
 			termFound = true;
